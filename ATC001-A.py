@@ -7,47 +7,75 @@
 高君が、塀を壊したりすることなく道を通って魚屋にたどり着けるかどうか判定してください。
 """
 
-import numpy as np
+'''
+10 10
+s.........
+#########.
+#.......#.
+#..####.#.
+##....#.#.
+#####.#.#.
+g.#.#.#.#.
+#.#.#.#.#.
+###.#.#.#.
+#.....#...
+'''
+
+
 import sys
 
 # 再起回数上限変更
-sys.setrecursionlimit(20000)
+sys.setrecursionlimit(1000000)
 
-converter = {'s': 0, 'g': 1, '.': 2, '#': 3}
+
+class Dbs(object):
+    def __init__(self, H, W, data, sh, sw, gh, gw):
+        self.H = H
+        self.W = W
+
+        self.data = data
+        self.visited = [[False] * W for _ in range(H)]
+
+        self.sh = sh
+        self.sw = sw
+        self.gh = gh
+        self.gw = gw
+
+    def search(self, r, c):
+        """ row,colでサーチ試す，行けたら visited = Trueに設定 """
+        if (r < 0) | (r > H - 1) | (c < 0) | (c > W - 1):
+            return
+        if self.data[r][c] == '#':
+            return
+        if self.visited[r][c]:
+            return
+        self.visited[r][c] = True
+        if (r, c) == (gh, gw):
+            print('Yes')
+            sys.exit()
+
+        self.search(r + 1, c)
+        self.search(r - 1, c)
+        self.search(r, c + 1)
+        self.search(r, c - 1)
+
 
 H, W = map(int, input().split())
-mat = np.zeros((H, W))
-reached = np.zeros((H, W))
+mat = [[0] * W for _ in range(H)]
 
 # matとstart, goal のindex
 for ind_h in range(H):
     temp = input()
     for ind_w in range(W):
-        mat[ind_h, ind_w] = converter[temp[ind_w]]
+        mat[ind_h][ind_w] = temp[ind_w]
         if temp[ind_w] == 's':
             sh, sw = ind_h, ind_w
         elif temp[ind_w] == 'g':
             gh, gw = ind_h, ind_w
 
-
-def search(x, y):
-    """ x,y でサーチ試す，行けたらreached = 1に設定 """
-    if (x < 0) | (x > H - 1) | (y < 0) | (y > W - 1):
-        return
-    if mat[x, y] == 3:
-        return
-    if reached[x, y] == 1:
-        return
-    reached[x, y] = 1
-    if (x, y) == (gh, gw):
-        print('Yes')
-        sys.exit()
-
-    search(x + 1, y)
-    search(x - 1, y)
-    search(x, y + 1)
-    search(x, y - 1)
+print(mat)
 
 
-search(sh, sw)
+dbs = Dbs(H, W, mat, sh, sw, gh, gw)
+dbs.search(sh, sw)
 print('No')
