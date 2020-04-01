@@ -1,53 +1,95 @@
 # -*- coding: utf-8 -*-
-# A - 深さ優先探索
+# A - 幅優先探索
+# https://atcoder.jp/contests/atc002/tasks/abc007_3
 """
-高橋君の住む街は長方形の形をしており、格子状の区画に区切られています。
-長方形の各辺は東西及び南北に並行です。 各区画は道または塀のどちらかであり、
-高橋君は道を東西南北に移動できますが斜めには移動できません。 また、塀の区画は通ることができません。
-高君が、塀を壊したりすることなく道を通って魚屋にたどり着けるかどうか判定してください。
+まず、盤面のサイズと、迷路のスタート地点とゴール地点の座標が与えられる。
+次に、それぞれのマスが通行可能な空きマス(.)か通行不可能な壁マス(#)かという情報を持った盤面が与えられる。盤面は壁マスで囲まれている。
+スタート地点とゴール地点は必ず空きマスであり、スタート地点からゴール地点へは、空きマスを辿って必ずたどり着ける。
+具体的には、入出力例を参考にすると良い。
 """
 
-import numpy as np
-import sys
+'''
+7 8
+2 2
+4 5
+########
+#......#
+#.######
+#..#...#
+#..##..#
+##.....#
+########
+'''
 
-# 再起回数上限変更
-sys.setrecursionlimit(20000)
+import queue
 
-converter = {'s': 0, 'g': 1, '.': 2, '#': 3}
 
-H, W = map(int, input().split())
-mat = np.zeros((H, W))
-reached = np.zeros((H, W))
+class Bfs(object):
+    def __init__(self, n_row, n_col, start, goal, data):
+        self.n_row = n_row
+        self.n_col = n_col
+        self.start_r, self.start_c = start
+        self.goal_r, self.goal_c = goal
+        self.data = data
 
-# matとstart, goal のindex
-for ind_h in range(H):
+        self.found = False
+
+        self.score = [[0] * n_col for _ in range(n_row)]
+        self.visited = [[False] * n_col for _ in range(n_row)]
+        self.wait_queue = queue.Queue()
+
+        # スタートの場所をキューに入れる
+        self.wait_queue.put(start)
+        self.visited[self.start_r][self.start_c] = True
+
+    def run(self):
+        while not self.wait_queue.empty():
+            # print(self.wait_queue.queue)
+            next_node = self.wait_queue.get()
+            # print(next_node)
+            self.work(next_node)
+            # goalまでつけば終わり
+            if self.found:
+                return self.score[self.goal_r][self.goal_c]
+
+    def work(self, node):
+        # goalであれば
+        r, c = node
+        if node == (self.goal_r, self.goal_c):
+            self.found = True
+            return
+
+        self._add(r + 1, c, self.score[r][c])
+        self._add(r - 1, c, self.score[r][c])
+        self._add(r, c + 1, self.score[r][c])
+        self._add(r, c - 1, self.score[r][c])
+
+    def _add(self, row, col, score):
+        # 条件を満たす場合はqueueに追加する
+        # 1. 未訪問
+        # 2. 通れる
+
+        if (not self.visited[row][col]) and (self.data[row][col] == '.'):
+            # print(f'push : {row}, {col}')
+            self.score[row][col] = score + 1
+            self.visited[row][col] = True
+            self.wait_queue.put((row, col))
+        else:
+            return False
+
+
+n_row, n_col = map(int, input().split())
+start_r, start_c = map(int, input().split())
+goal_r, goal_c = map(int, input().split())
+
+data = [[None] * n_col for _ in range(n_row)]
+# data = [None] * n_row
+for i in range(n_row):
     temp = input()
-    for ind_w in range(W):
-        mat[ind_h, ind_w] = converter[temp[ind_w]]
-        if temp[ind_w] == 's':
-            sh, sw = ind_h, ind_w
-        elif temp[ind_w] == 'g':
-            gh, gw = ind_h, ind_w
+    for c in range(n_col):
+        data[i][c] = temp[c]
 
+bfs = Bfs(n_row, n_col, (start_r - 1, start_c - 1), (goal_r - 1, goal_c - 1), data)
 
-def search(x, y):
-    """ x,y でサーチ試す，行けたらreached = 1に設定 """
-    if (x < 0) | (x > H - 1) | (y < 0) | (y > W - 1):
-        return
-    if mat[x, y] == 3:
-        return
-    if reached[x, y] == 1:
-        return
-    reached[x, y] = 1
-    if (x, y) == (gh, gw):
-        print('Yes')
-        sys.exit()
-
-    search(x + 1, y)
-    search(x - 1, y)
-    search(x, y + 1)
-    search(x, y - 1)
-
-
-search(sh, sw)
-print('No')
+score = bfs.run()
+print(score)
