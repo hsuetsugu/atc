@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 # knapsack problem
+# DP
 
 '''
 # N, W
