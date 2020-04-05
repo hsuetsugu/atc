@@ -4,6 +4,10 @@
 
 '''
 
-a, b, c = map(int, input().split())
-print(c, a, b)
+import sys
 
+L = float(input())
+
+x = L / 3
+# print(type(x))
+print(x**3)
