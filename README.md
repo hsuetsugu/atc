@@ -3,6 +3,7 @@ AtCoder Practice (WIP)
 
 ## about
 * AtCoderの過去問を解く
+* 及び関連する汎用クラス・関数など
 
 ## list
 * Union Fold(ATC001-B)：効率的なグルーピング
@@ -12,6 +13,7 @@ AtCoder Practice (WIP)
 * Binary Search：解の存在範囲を効率的に狭める
 
 ## 汎用クラス
-* UnionFind
-* Dijkstra
+* UnionFind（グルーピング）
+* Dijkstra（最短経路）
+* Prime(素数判定や約数列挙：O(√N))
 * helper
