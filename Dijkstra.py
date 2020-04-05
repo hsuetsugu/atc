@@ -32,11 +32,12 @@ class Dijkstra(object):
         """ ノードを追加する """
         self.adjacency_dict[v] = {}
 
-    def add_edge(self, v1: int, v2: int, w: float):
+    def add_edge(self, v1: int, v2: int, w: float, undirected=False):
         self.adjacency_dict[v1][v2] = w
-        self.adjacency_dict[v2][v1] = w
+        if undirected:
+            self.adjacency_dict[v2][v1] = w
 
-    def run(self, start: int):
+    def run(self, start: int) -> (list, list):
         """ startから初めてそれ以外のノードへの最短距離をダイクストラ法で求める """
         # sからの距離とその前のノードを管理する
         dist = [np.inf] * self.n
@@ -45,6 +46,7 @@ class Dijkstra(object):
 
         dist[start] = 0
 
+        # プライオリティキューでstartから各ノードの(最短距離, ノードindex)を管理する
         heappush(heap_q, (0, start))
 
         while len(heap_q) > 0:
@@ -53,14 +55,13 @@ class Dijkstra(object):
 
             # 最小のノードから直接リンクしているノードについて、距離が縮まるようであれば更新する
             for node in self.adjacency_dict[l].keys():
-                new_dist = d + self.adjacency_dict[l][node]
-                # new_dist = dist[l] + self.adjacency_dict[l][node]
+                new_dist = dist[l] + self.adjacency_dict[l][node]
                 if dist[node] > new_dist:
                     dist[node] = new_dist
                     heappush(heap_q, (new_dist, node))
                     prev[node] = l
 
-        print(dist)
+        return dist, prev
 
 
 if __name__ == '__main__':
@@ -73,4 +74,6 @@ if __name__ == '__main__':
 
     print(g.adjacency_dict)
 
-    g.run(start=0)
+    dist, prev = g.run(start=0)
+    print(dist)
+    print(prev)
