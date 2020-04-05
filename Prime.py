@@ -1,69 +1,57 @@
 # -*- coding: utf-8 -*-
-# Union Find
+# 整数関係の汎用関数
+
+# ToDo
+# divisor : 配列をsortしているため遅い可能性あり
 
 
-class UnionFind(object):
-    def __init__(self, n: int):
-        """ ノードのつながりを辞書型で表現する
-        要素数nであり、要素は0からn-1である想定
-        >> - usage
-        g = Graph(n=n)
-
+class Prime(object):
+    @staticmethod
+    def is_prime(n: int) -> bool:
         """
-        self.adjacency_dict = {}
-        self.parent = [None] * n
+        素数判定
+        >>> p = Prime()
+        >>> p.is_prime(2)
+        True
+        >>> p.is_prime(43)
+        True
+        >>> p.is_prime(4)
+        False
+        """
 
-        for i in range(n):
-            self.add_vertex(i)
-            self.parent[i] = i
-        self.rank = [0] * n
+        if n == 1:
+            return False
+        if n == 2:
+            return True
 
-    def add_vertex(self, v: int):
-        """ ノードを追加する """
-        self.adjacency_dict[v] = []
+        for i in range(2, n):
+            if n % i == 0:
+                return False
+            if i * i > n:
+                return True
 
-    def unite(self, v1: int, v2: int):
-        """ ノード同士をつなぐ。"""
-        if v1 == v2:
-            return
+    @staticmethod
+    def divisor(n: int) -> list:
+        """
+        約数列挙
+        >>> p = Prime()
+        >>> p.divisor(6)
+        [1, 2, 3, 6]
+        """
+        res = []
+        if n == 1:
+            return [1]
 
-        # すでにつながっている場合は親の更新のみしておく
-        if self.same(v1, v2):
-            return
-
-        p1 = self.parent[v1]
-        p2 = self.parent[v2]
-
-        # つながっていない場合は親同士をつなげる
-        # その場合rankが小さい方から大きい方につなげる
-        if self.rank[p1] == self.rank[p2]:
-            self.update(p1, p2)
-            self.rank[p2] += 1
-        elif self.rank[p1] < self.rank[p2]:
-            self.update(p1, p2)
-        else:
-            self.update(p2, p1)
-
-    def update(self, v, parent):
-        self.adjacency_dict[v].append(parent)
-
-    def same(self, v1, v2):
-        """ 親が同一であれば連結 """
-        self.parent[v1] = self.root(v1)
-        self.parent[v2] = self.root(v2)
-
-        return self.parent[v1] == self.parent[v2]
-
-    def root(self, v1):
-        """ vから上向きに辿って根を調べる """
-        if self.adjacency_dict[v1] == []:
-            return v1
-
-        for v in self.adjacency_dict[v1]:
-            parent = self.root(v)
-        return parent
-
-    def print_graph(self):
-        print(self.adjacency_dict)
+        for i in range(1, n):
+            if n % i == 0:
+                res.append(i)
+                if i != n / i:
+                    res.append(int(n / i))
+            if (i+1) * (i+1) > n:
+                res.sort()
+                return res
 
 
+if __name__ == '__main__':
+    import doctest
+    doctest.testmod()
