@@ -17,7 +17,7 @@ ws = [None] * N
 vs = [None] * N
 
 for i in range(N):
-    w, v = map(int, input().split())
+    v, w = map(int, input().split())
     ws[i] = w
     vs[i] = v
 
@@ -34,4 +34,6 @@ for i in range(N):
         else:
             dp[i + 1][j] = max(dp[i][j], dp[i][j - ws[i]] + vs[i])
 
-print(dp)
+# print(dp)
+print(dp[N][W])
+
