@@ -1,0 +1,13 @@
+# -*- coding: utf-8 -*-
+# A
+
+import sys
+# 再起回数上限変更
+# sys.setrecursionlimit(1000000)
+
+N, M = map(int, input().split())
+
+if N == M:
+    print('Yes')
+else:
+    print('No')
