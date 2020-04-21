@@ -1,59 +1,37 @@
 # -*- coding: utf-8 -*-
-# Counterを利用
-# 結果変数にlistを使うとTLEだが辞書にするとOK（なぜ？値参照は計算量変わらないような・・・）
 
+# ダイクストラでstartから各町についての最短時間、各町からstartまでの最短時間を求め、
+# 残り時間で稼げる金額の最大値を求めれば良い
 
 '''
-20 8
-1 8
-4 13
-8 8
-3 18
-5 20
-19 20
-2 7
-4 9
+2 2 5
+1 3
+1 2 2
+2 1 1
 '''
 
+from Dijkstra import Dijkstra
 import numpy as np
-import collections
 
-N, Q = map(int, input().split())
+N, M, T = map(int, input().split())
+A = list(map(int, input().split()))
 
-cnt = {}
-list_l = np.zeros(N)
-list_r = np.zeros(N)
+g1 = Dijkstra(n=N)
+g2 = Dijkstra(n=N)
 
-li = []
-ri = []
-
-for _ in range(Q):
-    l, r = map(int, input().split())
-    l ,r = l-1, r-1
-    li.append(l)
-    ri.append(r)
-
-l = collections.Counter(li)
-r = collections.Counter(ri)
-
-cnt[0] = l[0]
-print(int(cnt[0] % 2), end='')
-for i in range(1, N):
-    cnt[i] = cnt[i-1] + l[i] - r[i-1]
-    print(int(cnt[i] % 2), end='')
-
-print('')
+for i in range(M):
+    a, b, c = map(int, input().split())
+    a, b = a-1, b-1
+    g1.add_edge(a, b, c, undirected=False)
+    g2.add_edge(b, a, c, undirected=False)
 
 
-''' naive solution
-for _ in range(Q):
-    l, r = map(int, input().split())
-    l ,r = l-1, r-1
-    for i in range(N):
-        if (i >= l) and (i <= r):
-            s[i] += 1
+dist1, prev1 = g1.run(0)
+dist2, prev2 = g2.run(0)
 
-for i in range(N):
-    print(int(s[i] % 2), end='')
-print('')
-'''
+dist = np.array(dist1) + np.array(dist2)
+remain = np.ones(N) * T - dist
+
+res = (remain * np.array(A))[1:].max()
+
+print(max(res, 0))

@@ -6,23 +6,38 @@
 # ただ競プロではscipy使えないため別のやり方が必要
 
 # 最大公約数はmath.gcdを使えば良い
+# iterated powerはpythonにおいてはpow(x, y, z)でzにmodを指定すれば高速に計算可能
+
+# modの世界での割り算は逆元を使えば良い
+# よってXで割ったもののmodでのあまりを計算したい場合は、
+# pow(x, mod-2, mod)をすれば良い（フェルマーの小定理）
 
 
-class Prime(object):
+class Mint(object):
     """ 整数のお役立ち計算
     - 繰り返し二乗法で効率的にn**kを求める（必要であればmodを指定）
     - 素数判定
+    - 素因数分解
     - 約数列挙
-    - nCrの計算(ピンポイントで求める or r=1:nまで一気に求める）
+    - nCrの計算(ピンポイントで求める or あるnまでのnCrを計算するのに必要な情報を一気に求める）
     - ToDo:
     # divisor : 配列をsortしているため遅い可能性あり
     """
 
+    def gcd(self, a, b):
+        # ユークリッドの互除法を用いる
+        while b:
+            a, b = b, a % b
+        return a
+
+    def lcm(self, a, b):
+        return a * b // self.gcd(a, b)
+
     @staticmethod
-    def cmb(n, r):
-        """ nCrを求める
-        >>> p = Prime()
-        >>> p.cmb(10, 2)
+    def cmb_(n, r):
+        """ 普通にnCrを求める
+        >>> p = Mint()
+        >>> p.cmb_(10, 2)
         45
         """
         from operator import mul
@@ -35,11 +50,11 @@ class Prime(object):
         under = reduce(mul, range(1, r + 1))
         return over // under
 
-    def cmb_precalc(self, n, r, mod: int = 10 ** 9 + 7):
-        """ nCr（r=1:nまで）
-        >>> p = Prime()
+    def cmb(self, n, r, mod: int = 10 ** 9 + 7):
+        """ 事前にあるnまでの範囲で、nCrを高速に計算する
+        >>> p = Mint()
         >>> p.cmb_prep(10)
-        >>> p.cmb_precalc(10, 2)
+        >>> p.cmb(10, 2)
         45
         """
         if (r < 0) or (r > n):
@@ -60,7 +75,7 @@ class Prime(object):
     @staticmethod
     def iterated_power(z: int, n: int, mod=None) -> int:
         """ 繰り返し二乗法でn**kを求める（再帰処理は使わない）
-        >>> p = Prime()
+        >>> p = Mint()
         >>> p.iterated_power(3, 10)
         59049
         >>> p.iterated_power(3, 10, 10)
@@ -91,13 +106,13 @@ class Prime(object):
         return result
 
     @staticmethod
-    # def enumerate_prime(n: int) -> list:
-    def enumerate_prime(n: int) -> int:
+    def enumerate_prime(n: int) -> (list, dict, list):
         """
         n以下の素数を列挙する
-        >>> p = Prime()
+        何で割るかを記録しておくことで、素因数分解が高速にできる
+        >>> p = Mint()
         >>> p.enumerate_prime(11)
-        5
+        ([2, 3, 5, 7, 11], {2: 0, 3: 1, 5: 2, 7: 3, 11: 4}, [0, 1, 2, 3, 2, 5, 3, 7, 2, 3, 5, 11])
         """
 
         lis_prime = [True] * (n+1)
@@ -105,23 +120,31 @@ class Prime(object):
         lis_prime[1] = False
 
         primes = []
+        div_prime = [i for i in range(n + 1)]
+        primes_idx = {}
+
+        cnt = 0
         for i in range(2, n+1):
             if lis_prime[i]:
                 primes.append(i)
+                primes_idx[i] = cnt
+                cnt += 1
+
                 j = 2 * i
                 while True:
                     if j > n:
                         break
                     lis_prime[j] = False
+                    div_prime[j] = i
                     j += i
 
-        return len(primes)
+        return primes, primes_idx, div_prime
 
     @staticmethod
     def is_prime(n: int) -> bool:
         """
         素数判定
-        >>> p = Prime()
+        >>> p = Mint()
         >>> p.is_prime(2)
         True
         >>> p.is_prime(43)
@@ -145,7 +168,7 @@ class Prime(object):
     def divisor(n: int) -> list:
         """
         約数列挙
-        >>> p = Prime()
+        >>> p = Mint()
         >>> p.divisor(6)
         [1, 2, 3, 6]
         """
@@ -167,13 +190,14 @@ if __name__ == '__main__':
     import doctest
     doctest.testmod()
 
-    p = Prime()
+    p = Mint()
 
     # 繰り返し二乗法
     n = 10**15
     divisor = 10**9 + 7
     print(p.iterated_power(3, n, divisor))
+    print(pow(3, n, divisor))
 
     # n以下の素数列挙
-    n = 10**6
-    print(f'number of primes less than {n} : {p.enumerate_prime(n)}')
+    # n = 10**6
+    # print(f'number of primes less than {n} : {p.enumerate_prime(n)}')

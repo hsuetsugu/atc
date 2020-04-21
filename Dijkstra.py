@@ -15,14 +15,34 @@ from heapq import heappop, heappush
 '''
 
 
-class Dijkstra(object):
-    def __init__(self, n: int):
+class Graph(object):
+    def __init__(self, n:int):
         """ ノードのつながりを辞書型で表現する
         要素数nであり、要素は0からn-1である想定
         >> - usage
         g = Graph(n=n)
 
         """
+        self.adjacency_dict = {}
+        self.n = n
+        for i in range(n):
+            self.add_vertex(i)
+
+    def add_vertex(self, v: int):
+        """ ノードを追加する """
+        self.adjacency_dict[v] = []
+
+    def add_edge(self, v1: int, v2: int, undirected=False):
+        self.adjacency_dict[v1].append(v2)
+        if undirected:
+            self.adjacency_dict[v2].append(v1)
+
+
+class Dijkstra(object):
+    """ ある特定の点からそのほかの頂点への最小距離を求める
+    最短区間を実現するルートについては、prevに格納していく
+    """
+    def __init__(self, n:int):
         self.adjacency_dict = {}
         self.n = n
         for i in range(n):
