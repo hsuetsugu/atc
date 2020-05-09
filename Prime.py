@@ -191,6 +191,7 @@ if __name__ == '__main__':
     doctest.testmod()
 
     p = Mint()
+    print(p.cmb_(160, 80))
 
     # 繰り返し二乗法
     n = 10**15
