@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 # E
+# 単純にheapqに入れていくのだとKが大きいのでTLE
+# 2分探索が必要
 
 import sys
 from collections import defaultdict, deque
@@ -17,6 +19,32 @@ F = list(map(int, input().split()))
 A.sort(reverse=True)
 F.sort()
 
+
+def judge(x):
+    val = 0
+    for i in range(N):
+        val += max(A[i] - x // F[i], 0)
+        if val > K:
+            return False
+    if val <= K:
+        return True
+
+
+ub = 10**12
+lb = -1
+
+while lb + 1 < ub:
+    x = (ub+lb)/2
+    if judge(x):
+        ub = x
+    else:
+        lb = x
+
+print(int(ub))
+
+
+
+'''
 q = []
 ws = []
 cnt = 0
@@ -58,3 +86,5 @@ for w in ws[1:]:
 # print(q)
 val, a, f = heappop(q)
 print(-val)
+'''
+
