@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 # Warshall
+# O(n**3)
 
 '''
 3 2 5
