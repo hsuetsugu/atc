@@ -13,38 +13,16 @@ mod = 998244353
 
 N, S = map(int, input().split())
 A = list(map(int, input().split()))
-A.sort()
 
+dp = [[0] * (S+1) for _ in range(N+1)]
+dp[0][0] = 1
 
-def calc_cnt(n, s):
-    cnt = 0
-    for i in combinations(A, n+1):
-        # print(i)
-        if sum(i) == s:
-            cnt += 1
-    return cnt
+for i in range(1, N+1):
+    for j in range(S+1):
+        dp[i][j] += dp[i-1][j] * 2
+        if j + A[i-1] <= S:
+            dp[i][j+A[i-1]] += dp[i-1][j]
+        dp[i][j] %= mod
 
-A_cum = list(accumulate(A))
-
-vs = []
-for i in range(0, N):
-    if A_cum[i] > S:
-        vs.append(0)
-        continue
-    res = calc_cnt(i, S)
-    print(i, S, res)
-
-    vs.append(calc_cnt(i, S))
-
-print(vs)
-
-ans = 0
-for idx, v in enumerate(vs):
-    if idx > 0:
-        ans += v + ans*(N-idx)//idx
-    else:
-        ans += v
-    ans = ans % mod
-
-print(ans)
-
+# print(dp)
+print(dp[-1][S] % mod)
