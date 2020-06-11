@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+# AとBの論理差をとりたい場合は A & ~B でOK
 
 print('bit演算：シフト演算子、bit_length, population count')
 for m in range(7, 10):
